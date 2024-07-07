@@ -11,11 +11,19 @@ services:
       - "9200:9200"
       - "9300:9300"
 
+  # ollama:
+  #   image: ollama/ollama
+  #   container_name: ollama
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+
   ollama:
     image: ollama/ollama
     container_name: ollama
     volumes:
-      - ollama:/root/.ollama
+      - ./ollama_files:/root/.ollama
     ports:
       - "11434:11434"
 

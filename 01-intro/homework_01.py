@@ -170,4 +170,8 @@ def generate_answer(query, results):
 
 print(f"Question: {query}\nAnswer: {generate_answer(query, results_filter)}")
 
+#%% [markdown]
+# Some other useful links:
+# - [How to Use Elasticsearch in Python](https://dylancastillo.co/elasticsearch-python/)
+
 
