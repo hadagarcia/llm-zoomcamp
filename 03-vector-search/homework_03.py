@@ -220,11 +220,11 @@ def elastic_search_knn(field, vector, course):
         "query_vector": vector,
         "k": 5,
         "num_candidates": 10000,
-        "filter": {
-            "term": {
-                "course": course
-            }
-        }
+        # "filter": {
+        #     "term": {
+        #         "course": course
+        #     }
+        # }
     }
 
     search_query = {
@@ -274,11 +274,10 @@ for doc in embeddings_ground_truth:
 # ### Search with Elasticsearch for ground truth
 es_relevance_total = []
 
-for q in tqdm(ground_truth):
+for q in tqdm(embeddings_ground_truth):
     doc_id = q['document']
 
-    # es_knn_results = elastic_search_knn('question_vector', embedding_model.encode(q['question']), 'machine-learning-zoomcamp')
-    es_knn_results = elastic_search_knn('question_vector', q['question_vector'], 'machine-learning-zoomcamp') 
+    es_knn_results = elastic_search_knn('question_text_vector', q['question_vector'], 'machine-learning-zoomcamp')
     es_knn_relevance = [d['id'] == doc_id for d in es_knn_results]
     es_relevance_total.append(es_knn_relevance)
 
