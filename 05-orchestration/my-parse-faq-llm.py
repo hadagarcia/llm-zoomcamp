@@ -8,8 +8,7 @@ import io
 import requests
 import docx
 from tqdm.auto import tqdm
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+import hashlib
 
 # %%
 # ### Prepare methods to read the FAQ document
@@ -82,15 +81,49 @@ faq_documents = {
 
 # %%
 # ### Q2. Reading the documents
-documents = []
+data = []
 
 for course, file_id in tqdm(faq_documents.items()):
     print(course)
     course_documents = read_faq(file_id)
-    documents.append({'course': course, 'documents': course_documents})
+    data.append({'course': course, 'documents': course_documents})
 
 # %% [markdown]
 # ### Mage Pipeline - Ingest
 # ![Pipeline - ingest](https://github.com/hadagarcia/llm-zoomcamp/blob/main/images/Module5/Q2_ReadingDocuments.png)
+
+# %% [markdown]
+# #### Transform data
+
+# %%
+# Method definitions
+def generate_document_id(doc):
+    combined = f"{doc['course']}-{doc['question']}-{doc['text'][:10]}"
+    hash_object = hashlib.md5(combined.encode())
+    hash_hex = hash_object.hexdigest()
+    document_id = hash_hex[:8]
+    return document_id
+
+# %% [markdown]
+# ### Q3. Transform data
+transformed_documents = []
+print(type(data))
+
+# %%      
+for course_dict in data:
+    for doc in tqdm(course_dict['documents']):
+        doc['course'] = course_dict['course']
+        # previously we used just "id" for document ID
+        doc['document_id'] = generate_document_id(doc)
+        transformed_documents.append(doc)
+
+print(f'Chunking: number of questions: {len(transformed_documents)}')
+print(f'Chunking: example question: {transformed_documents[0]}')
+
+# In Mage didn't need to add the extra loop, data was a dictionary already
+
+# %% [markdown]
+# ### Mage Pipeline - Chunking
+# ![Pipeline - ingest](https://github.com/hadagarcia/llm-zoomcamp/blob/main/images/Module5/Q3_ChunkingDocuments.png)
 
 # %%
