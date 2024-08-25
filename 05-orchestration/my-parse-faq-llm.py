@@ -9,6 +9,8 @@ import requests
 import docx
 from tqdm.auto import tqdm
 import hashlib
+from datetime import datetime
+from elasticsearch import Elasticsearch
 
 # %%
 # ### Prepare methods to read the FAQ document
@@ -79,7 +81,7 @@ faq_documents = {
 }
 
 
-# %%
+# %% [markdown]
 # ### Q2. Reading the documents
 data = []
 
@@ -125,5 +127,52 @@ print(f'Chunking: example question: {transformed_documents[0]}')
 # %% [markdown]
 # ### Mage Pipeline - Chunking
 # ![Pipeline - ingest](https://github.com/hadagarcia/llm-zoomcamp/blob/main/images/Module5/Q3_ChunkingDocuments.png)
+
+# %% [markdown]
+# ### Q4. Export
+
+# %%
+# Create Elasticsearch client
+es_client = Elasticsearch('http://localhost:9200')
+es_client.info()
+
+# %%
+index_name_prefix = 'documents'
+current_time = datetime.now().strftime("%Y%m%d_%M%S")
+index_name = f"{index_name_prefix}_{current_time}"
+print(f'index name:  {index_name}')
+
+index_settings = {
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0
+    },
+    "mappings": {
+        "properties": {
+            "text": {"type": "text"},
+            "section": {"type": "text"},
+            "question": {"type": "text"},
+            "course": {"type": "keyword"},
+            "document_id": {"type": "keyword"}
+        }
+    }
+}
+
+es_client.indices.delete(index=index_name, ignore_unavailable=True)
+es_client.indices.create(index=index_name, body=index_settings)
+
+# %%
+# Initialize a variable to store the last document
+last_document = None
+
+for document in tqdm(transformed_documents):
+    # Update the last_document variable
+    last_document = document
+
+    es_client.index(index=index_name, document=document)
+    
+# Print the last document after the loop
+if last_document:
+    print(f'Last document indexed: {last_document["document_id"]}')
 
 # %%
