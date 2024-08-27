@@ -175,4 +175,6 @@ for document in tqdm(transformed_documents):
 if last_document:
     print(f'Last document indexed: {last_document["document_id"]}')
 
-# %%
+# %% [markdown]
+# ### Mage Pipeline - Export
+# ![Pipeline - ingest](https://github.com/hadagarcia/llm-zoomcamp/blob/main/images/Module5/Q4_ExportToElasticsearch.png)
